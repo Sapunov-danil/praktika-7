@@ -1,0 +1,22 @@
+<?php
+						$sql = "SELECT * FROM `session` WHERE `IdUser` = {$_SESSION['user']} ORDER BY `DateStart` DESC";
+						$Query = $mysqli->query($sql);
+
+						if($Query->num_rows > 1) {
+							$Query->fetch_assoc(); 
+							$Read = $Query->fetch_assoc();
+							
+							$TimeEnd = strtotime($Read["DateNow"]);
+							$TimeNow = time();
+							$TimeStart = strtotime($Read["DateStart"]);
+							
+							
+							$TimeDelta = round(($TimeNow - $TimeEnd) / 60);
+							
+							
+							$SessionDuration = round(($TimeEnd - $TimeStart) / 60);
+							
+							echo "<br>Последняя активная сессия была: {$TimeDelta} минут назад";
+							echo "<br>Длительность предыдущей сессии: {$SessionDuration} минут";
+						}
+?>
