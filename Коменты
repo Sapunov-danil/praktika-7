@@ -1,0 +1,32 @@
+message.php:
+<?php
+session_start();
+include("../settings/connect_datebase.php");
+
+$IdUser = $_SESSION['user'];
+$Message = $_POST["Message"];
+$IdPost = $_POST["IdPost"]; 
+$idSession = isset($_SESSION["IdSession"]) ? $_SESSION["IdSession"] : $_SESSION["idSession"];
+
+$Sql = "SELECT `session`.*, `users`.`login` ".
+"FROM `session` ".
+"JOIN `users` ON `users`.`id` = `session`.`idUser` ".
+"WHERE `session`.`id` = {$idSession}"; 
+
+$Query = $mysqli->query($Sql);
+$Read = $Query->fetch_array();
+
+$timeStart = strtotime($Read["dateStart"]);
+$timeNow = time();
+$ip = $Read["Ip"];
+$timeDelta = gmdate("H:i:s", ($timeNow - $timeStart));
+$date = date("Y-m-d H:i:s");
+$login = $Read["login"];
+
+
+$Sql = "INSERT INTO `logs`(`ip`, `idUser`, `date`,  `timeOnline`, `event`) ".
+"VALUES ('{$ip}', {$IdUser}, '{$date}', '{$timeDelta}', 'Пользователь {$login} оставил комментарий к записи [id: {$IdPost}]: {$Message}')";
+$mysqli->query($Sql);
+
+$mysqli->query("INSERT INTO `comments`(`IdUser`, `IdPost`, `Messages`) VALUES ({$IdUser}, {$IdPost}, '{$Message}');");
+?>
