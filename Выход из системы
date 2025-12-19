@@ -1,0 +1,30 @@
+logout.php:
+<?php
+session_start();
+require_once("../settings/connect_datebase.php");
+
+$idUser = $_SESSION["user"];
+$idSession = isset($_SESSION["IdSession"]) ? $_SESSION["IdSession"] : $_SESSION["idSession"];
+
+$Sql = "SELECT `session`.*, `users`.`login` ".
+"FROM `session` ".
+"JOIN `users` ON `users`.`id` = `session`.`idUser` ".
+"WHERE `session`.`id` = {$idSession}"; 
+
+$Query = $mysqli->query($Sql);
+$Read = $Query->fetch_array();
+
+$timeStart = strtotime($Read["dateStart"]);
+$timeNow = time();
+$ip = $Read["Ip"];
+$timeDelta = gmdate("H:i:s", ($timeNow - $timeStart));
+$date = date("Y-m-d H:i:s");
+$login = $Read["login"];
+
+$Sql = "INSERT INTO ".
+"`logs`(`ip`, `idUser`, `date`,  `timeOnline`, `event`) ".
+"VALUES ('{$ip}', {$idUser}, '{$date}', '{$timeDelta}', 'Пользователь {$login} вышел из системы')";
+$mysqli->query($Sql);
+
+session_destroy();
+?>
